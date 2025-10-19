@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar 2025–2026</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('image2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .outside-text {
+      color: white;
+      font-size: 20px;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .calendar-container {
+      max-width: 800px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .calendar-header select {
+      font-size: 16px;
+      padding: 6px;
+    }
+
+    .goto-today-container {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .goto-today-btn {
+      padding: 6px 12px;
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .goto-today-btn:hover {
+      background-color: #138496;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day-name {
+      font-weight: bold;
+      text-align: center;
+      padding: 8px 0;
+      background: #2bc2e7;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .date-cell {
+      text-align: center;
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 5px;
+      background: #b7e7f3;
+      cursor: pointer;
+      transition: background 0.3s;
+      position: relative;
+      user-select: none;
+    }
+
+    .date-cell:hover {
+      background: #e22006;
+    }
+
+    .date-cell.has-event::after {
+      content: "📌";
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      font-size: 14px;
+    }
+
+    .date-cell.today {
+      background-color: #31a7be;
+      border: 2px solid #7aeafc;
+      font-weight: bold;
+      color: #0c5460;
+    }
+
+    .empty-cell {
+      background: transparent;
+      cursor: default;
+    }
+
+    #eventDisplay {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+      font-weight: bold;
+      color: #007bff;
+      min-height: 24px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(94, 88, 88, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      width: 320px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(150, 43, 43, 0.2);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-content h3 {
+      margin: 0 0 10px;
+    }
+
+    .modal-content textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: inherit;
+    }
+
+    .modal-content input[type="time"] {
+      width: 100%;
+      padding: 6px;
+      font-size: 14px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: inherit;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+
+    .modal-buttons button.save-btn {
+      background: #007bff;
+      color: white;
+    }
+
+    .modal-buttons button.save-btn:hover {
+      background: #0056b3;
+    }
+
+    .modal-buttons button.delete-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .modal-buttons button.delete-btn:hover {
+      background: #a71d2a;
+    }
+
+    .modal-buttons button.close-btn {
+      background: #6c757d;
+      color: white;
+    }
+
+    .modal-buttons button.close-btn:hover {
+      background: #565e64;
+    }
+
+    /* See All Events Button */
+    #seeAllEventsBtn {
+      margin-top: 15px;
+      padding: 8px 15px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+
+    #seeAllEventsBtn:hover {
+      background-color: #1e7e34;
+    }
+
+    /* Events List Modal */
+    #allEventsModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #allEventsModalContent {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    #allEventsModalContent h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    #allEventsList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #allEventsList li {
+      margin-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    #allEventsModalClose {
+      display: block;
+      margin: 10px auto 0;
+      padding: 8px 12px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #allEventsModalClose:hover {
+      background-color: #565e64;
+    }
+
+  </style>
+</head>
+<body>
+
+  <p class="outside-text">Welcome! This is your 2025–2026 personal event calendar.</p>
+
+  <div class="calendar-container">
+    <h1>📅 Calendar 2025–2026</h1>
+
+    <div class="calendar-header">
+      <select id="yearSelect">
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+      </select>
+      <select id="monthSelect"></select>
+    </div>
+
+    <div class="goto-today-container">
+      <button class="goto-today-btn" onclick="goToToday()">Go to Today</button>
+    </div>
+
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <button id="seeAllEventsBtn" onclick="showAllEvents()">See All Events</button>
+
+    <div id="eventDisplay">Click a date to view or add events</div>
+  </div>
+
+  <div class="modal" id="eventModal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Event for DATE</h3>
+      <textarea id="eventText" placeholder="Enter your event here..."></textarea>
+      <label for="eventTime">Time:</label>
+      <input type="time" id="eventTime" />
+      <div class="modal-buttons">
+        <button class="save-btn" onclick="saveEvent()">Save Event</button>
+        <button class="delete-btn" onclick="deleteEvent()">Delete Event</button>
+        <button class="close-btn" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Events Modal -->
+  <div class="modal" id="allEventsModal">
+    <div id="allEventsModalContent">
+      <h3>All Saved Events</h3>
+      <ul id="allEventsList"></ul>
+      <button id="allEventsModalClose" onclick="closeAllEventsModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const calendarGrid = document.getElementById("calendarGrid");
+    const monthSelect = document.getElementById("monthSelect");
+    const yearSelect = document.getElementById("yearSelect");
+    const eventDisplay = document.getElementById("eventDisplay");
+    const eventModal = document.getElementById("eventModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const eventText = document.getElementById("eventText");
+    const eventTime = document.getElementById("eventTime");
+    const allEventsModal = document.getElementById("allEventsModal");
+    const allEventsList = document.getElementById("allEventsList");
+
+    let selectedDate = null;
+
+    monthNames.forEach((name, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = name;
+      monthSelect.appendChild(option);
+    });
+
+    function formatDateKey(year, month, day) {
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    function generateCalendar(year, month) {
+      calendarGrid.innerHTML = "";
+      dayNames.forEach(day => {
+        const cell = document.createElement("div");
+        cell.className = "day-name";
+        cell.textContent = day;
+        calendarGrid.appendChild(cell);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement("div");
+        empty.className = "date-cell empty-cell";
+        calendarGrid.appendChild(empty);
+      }
+
+      const today = new Date();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement("div");
+        cell.className = "date-cell";
+        cell.textContent = day;
+
+        const key = formatDateKey(year, month + 1, day);
+        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          cell.classList.add("today");
+        }
+
+        if (localStorage.getItem(key)) {
+          cell.classList.add("has-event");
+        }
+
+        cell.addEventListener("click", () => {
+          selectedDate = key;
+          openModal(key, day, month + 1, year);
+        });
+
+        calendarGrid.appendChild(cell);
+      }
+    }
+
+    function openModal(dateKey, day, month, year) {
+      modalTitle.textContent = `Event for ${day}/${month}/${year}`;
+      const saved = localStorage.getItem(dateKey);
+      if (saved) {
+        const data = JSON.parse(saved);
+        eventText.value = data.text || "";
+        eventTime.value = data.time || "";
+      } else {
+        eventText.value = "";
+        eventTime.value = "";
+      }
+      eventModal.style.display = "flex";
+    }
+
+    function closeModal() {
+      eventModal.style.display = "none";
+      selectedDate = null;
+      eventText.value = "";
+      eventTime.value = "";
+    }
+
+    function saveEvent() {
+      const text = eventText.value.trim();
+      const time = eventTime.value;
+      if (selectedDate) {
+        if (text === "") {
+          alert("Event text cannot be empty!");
+          return;
+        }
+        localStorage.setItem(selectedDate, JSON.stringify({ text, time }));
+        closeModal();
+        generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+        eventDisplay.textContent = `Event saved for ${selectedDate}`;
+      }
+    }
+
+    function deleteEvent() {
+      if (selectedDate) {
+        localStorage.removeItem(selectedDate);
+        closeModal();
+        generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+        eventDisplay.textContent = `Event deleted for ${selectedDate}`;
+      }
+    }
+
+    function showAllEvents() {
+      allEventsList.innerHTML = "";
+      const keys = Object.keys(localStorage).sort();
+
+      // Filter valid events only
+      const events = keys.map(key => {
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data && data.text) {
+            return { key, time: data.time || "No time", text: data.text };
+          }
+        } catch {
+          // Ignore invalid JSON
+        }
+        return null;
+      }).filter(e => e !== null);
+
+      if (events.length === 0) {
+        allEventsList.innerHTML = "<li>No saved events</li>";
+      } else {
+        events.forEach(({ key, time, text }) => {
+          const li = document.createElement("li");
+          li.textContent = `${key} at ${time} — ${text}`;
+          allEventsList.appendChild(li);
+        });
+      }
+
+      allEventsModal.style.display = "flex";
+    }
+
+    function closeAllEventsModal() {
+      allEventsModal.style.display = "none";
+    }
+
+    function goToToday() {
+      const today = new Date();
+      yearSelect.value = today.getFullYear();
+      monthSelect.value = today.getMonth();
+      generateCalendar(today.getFullYear(), today.getMonth());
+      eventDisplay.textContent = "Showing today";
+    }
+
+    yearSelect.addEventListener("change", () => {
+      generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+    });
+
+    monthSelect.addEventListener("change", () => {
+      generateCalendar(parseInt(yearSelect.value), parseInt(monthSelect.value));
+    });
+
+    // Initialize with today's date selected
+    (function init() {
+      const today = new Date();
+      yearSelect.value = today.getFullYear();
+      monthSelect.value = today.getMonth();
+      generateCalendar(today.getFullYear(), today.getMonth());
+    })();
+
+  </script>
+
+</body>
+</html>
